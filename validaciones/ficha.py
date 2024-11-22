@@ -32,7 +32,7 @@ class Ficha:
 
             # Iterar sobre las filas del DataFrame
             for index, row in df.iterrows():
-                valor_b = row['NumCedulaCatastral']
+                valor_b = row['Npn']
                 valor_p = row['AreaTotalTerreno']
 
                 # Verificar si valor_b no es nulo o vacío, y si tiene al menos 22 caracteres
@@ -89,7 +89,7 @@ class Ficha:
 
             # Iterar sobre las filas del DataFrame
             for index, row in df.iterrows():
-                valor_a = str(row['NumCedulaCatastral'])  # Convertir a cadena por si acaso
+                valor_a = str(row['Npn'])  # Convertir a cadena por si acaso
                 valor_b = row['AreaTotalTerreno']
 
             print(f"Fila {index}: Valor A = '{valor_a}'")
@@ -117,7 +117,8 @@ class Ficha:
                 'NroFicha', 'NumCedulaCatastral', 'Condicion de predio', 'AreaTotalTerreno', 'Observacion'])
 
             # Guardar el resultado en un nuevo archivo Excel
-            ''' 
+            '''
+            
             output_file = 'TERRENO_NULL.xlsx'
             sheet_name = 'TERRENO_NULL'
             df_resultado.to_excel(output_file, sheet_name=sheet_name, index=False)
@@ -220,7 +221,7 @@ class Ficha:
 
             # Iterar sobre las filas del DataFrame
             for index, row in df.iterrows():
-                valor_a = str(row['NumCedulaCatastral']) if pd.notna(row['NumCedulaCatastral']) else ''
+                valor_a = str(row['Npn']) if pd.notna(row['Npn']) else ''
                 valor_b = row['MatriculaInmobiliaria']
 
                 print(f"Fila {index}: Valor A = '{valor_a}'")
@@ -291,7 +292,7 @@ class Ficha:
 
             # Iterar sobre las filas del DataFrame
             for index, row in df.iloc[0:].iterrows():
-                valor_a = row['NumCedulaCatastral']
+                valor_a = row['Npn']
                 valor_b = row['circulo']
 
             print(f"Fila {index}: Valor A = '{valor_a}'")
@@ -358,7 +359,7 @@ class Ficha:
 
             # Iterar sobre las filas del DataFrame, comenzando desde la fila 2
             for index, row in df.iloc[0:].iterrows():
-                valor_a = row['NumCedulaCatastral']
+                valor_a = row['Npn']
                 valor_b = row['Tomo']
 
                 print(f"Fila {index}: Valor A = '{valor_a}'")
@@ -425,7 +426,7 @@ class Ficha:
 
             # Iterar sobre las filas del DataFrame, comenzando desde la fila 2
             for index, row in df.iloc[0:].iterrows():
-                valor_a = row['NumCedulaCatastral']
+                valor_a = row['Npn']
                 valor_b = row['ModoAdquisicion']
 
                 print(f"Fila {index}: Valor A = '{valor_a}'")
@@ -436,7 +437,7 @@ class Ficha:
                     if valor_a[21] == '2' and valor_b != '2|POSESIÓN':
                         resultado = {
                             'NroFicha': row['NroFicha'],
-                            'NumCedulaCatastral': row['NumCedulaCatastral'],
+                            'Npn': row['Npn'],
                             'Condicion de predio': valor_a[21],
                             'ModoAdquisicion': row['ModoAdquisicion'],
                             'Observacion': 'La informalidad no puede tener modo de adquisición diferente a posesión',
@@ -768,7 +769,7 @@ class Ficha:
             resultados = []
 
             # Lista de palabras no permitidas
-            palabras_no_permitidas = ['CALLE', 'calle', 'AVENIDA', 'avenida', 'CR','CRA','Cra', 'KL', 'CARRERA', 'Carrera', 'Diagonal']
+            palabras_no_permitidas = ['CALLE', 'calle', 'AVENIDA', 'avenida', 'KR','CRA','Cra', 'KL', 'CARRERA', 'Carrera', 'Diagonal']
 
             # Iterar sobre las filas del DataFrame
             for index, row in df.iterrows():
@@ -1238,10 +1239,11 @@ class Ficha:
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
                 
     
-    def validar_destino_economico(self):
+    def validar_destino_economico_y_longitud_cedula(self):
         """
-        Verifica que en la hoja 'FichasPrediales', si el cuarto dígito de 'NumCedulaCatastral' es '2'
-        y el 'DestinoEconomico' es uno de los valores especificados, se genera un error.
+        Verifica que en la hoja 'FichasPrediales':
+        1. Si el cuarto dígito de 'NumCedulaCatastral' es '2' y el 'DestinoEconomico' es uno de los valores especificados, se genera un error.
+        2. Valida que todos los valores en 'NumCedulaCatastral' tengan exactamente 28 dígitos.
         """
         archivo_excel = self.archivo_entry.get()
         if not archivo_excel:
@@ -1261,27 +1263,35 @@ class Ficha:
             
             resultados = []
 
-            # Iterar sobre cada fila para validar las condiciones
+            # Validar longitud de 'NumCedulaCatastral'
             for index, row in df_fichas.iterrows():
-                num_cedula_catastral = str(row['NumCedulaCatastral'])  # Convertir a cadena
-                destino_economico = row.get('DestinoEconomico', '')
+                num_cedula_catastral = str(row['NumCedulaCatastral']).strip()  # Convertir a cadena
 
-                # Verificar que NumCedulaCatastral tenga al menos 4 caracteres y cumpla con las condiciones
-                if len(num_cedula_catastral) >= 4 and num_cedula_catastral[3] == '2' and destino_economico in destinos_invalidos:
-                    resultado = {
+                # Validar longitud de 28 dígitos
+                if len(num_cedula_catastral) != 28:
+                    resultados.append({
+                        'NroFicha': row['NroFicha'],
+                        'NumCedulaCatastral': num_cedula_catastral,
+                        'Observacion': 'NumCedulaCatastral no tiene 28 dígitos',
+                        'Nombre Hoja': 'Fichas'
+                    })
+
+                # Validar DestinoEconomico si el cuarto dígito de NumCedulaCatastral es '2'
+                destino_economico = row.get('DestinoEcconomico', '').strip()
+                if num_cedula_catastral[3] == '2' and destino_economico in destinos_invalidos:
+                    resultados.append({
                         'NroFicha': row['NroFicha'],
                         'NumCedulaCatastral': num_cedula_catastral,
                         'DestinoEconomico': destino_economico,
                         'Observacion': 'Destino Economico no valido para ficha Rural',
-                        'Nombre Hoja': 'FichasPrediales'
-                    }
-                    resultados.append(resultado)
+                        'Nombre Hoja': 'Fichas'
+                    })
             '''
             
             # Guardar los resultados en un archivo Excel si hay errores
             if resultados:
                 df_resultado = pd.DataFrame(resultados)
-                output_file = 'Errores_Posiciones_NumCedulaCatastral_y_DestinoEconomico_FichasPrediales.xlsx'
+                output_file = 'Errores_NumCedulaCatastral_y_DestinoEconomico_FichasPrediales.xlsx'
                 df_resultado.to_excel(output_file, index=False)
                 print(f"Archivo de errores guardado: {output_file}")
                 messagebox.showinfo("Éxito", f"Errores encontrados: {len(resultados)} registros que cumplen con las condiciones.")
@@ -1295,3 +1305,160 @@ class Ficha:
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
             return []
         
+    
+    def validar_direccion_referencia_y_nombre(self):
+        """
+        Verifica que en la hoja 'FichasPrediales', las columnas 'DireccionReferencia' y 'DireccionNombre' no contengan valores nulos.
+        """
+        archivo_excel = self.archivo_entry.get()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer la hoja 'FichasPrediales'
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Fichas')
+
+            resultados = []
+
+            # Validar si hay valores nulos en las columnas 'DireccionReferencia' y 'DireccionNombre'
+            for index, row in df_fichas.iterrows():
+                if pd.isnull(row['DireccionReferencia']):
+                    resultados.append({
+                        'NroFicha': row['NroFicha'],
+                        'Columna': 'DireccionReferencia',
+                        'Observacion': 'DireccionReferencia no está diligenciada',
+                        'Nombre Hoja': 'FichasPrediales'
+                    })
+
+                if pd.isnull(row['DireccionNombre']):
+                    resultados.append({
+                        'NroFicha': row['NroFicha'],
+                        'Columna': 'DireccionNombre',
+                        'Observacion': 'DireccionNombre no está diligenciada',
+                        'Nombre Hoja': 'FichasPrediales'
+                    })
+            '''
+            
+            # Guardar los resultados en un archivo Excel si hay errores
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'Errores_DireccionReferencia_y_DireccionNombre_FichasPrediales.xlsx'
+                df_resultado.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Éxito", f"Errores encontrados: {len(resultados)} registros que cumplen con las condiciones.")
+            else:
+                messagebox.showinfo("Sin errores", "No se encontraron valores nulos en 'DireccionReferencia' o 'DireccionNombre' en 'FichasPrediales'.")
+            '''
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+
+    def validar_tipo_documento(self):
+        """
+        Verifica que en la hoja 'Fichas', los valores en la columna 'TipoDocumento' no sean
+        '10|CEDULA CIUDADANIA HOMBRE' o '10|CEDULA CIUDADANIA MUJER'.
+        Si se encuentran estos valores, genera un error indicando que deben ser '10|CEDULA DE CIUDADANIA'.
+        """
+        archivo_excel = self.archivo_entry.get()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer la hoja 'Fichas'
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Propietarios')
+
+            # Valores no permitidos en 'TipoDocumento'
+            valores_invalidos = [
+                "10|CEDULA CIUDADANIA HOMBRE",
+                "10|CEDULA CIUDADANIA MUJER"
+            ]
+            
+            # Lista para almacenar los errores encontrados
+            resultados = []
+
+            # Validar cada fila en la columna 'TipoDocumento'
+            for index, row in df_fichas.iterrows():
+                tipo_documento = row.get('TipoDocumento', '')
+
+                # Si 'TipoDocumento' contiene un valor no permitido
+                if tipo_documento in valores_invalidos:
+                    resultados.append({
+                        'NroFicha': row['NroFicha'],
+                        'TipoDocumento': tipo_documento,
+                        'Observacion': "Debe ser '10|CEDULA DE CIUDADANIA'",
+                        'Nombre Hoja': 'Propietarios'
+                    })
+            '''
+            
+            # Guardar los resultados en un archivo Excel si hay errores
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'Errores_TipoDocumento_Fichas.xlsx'
+                df_resultado.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(resultados)} registros con valores incorrectos en 'TipoDocumento'.")
+            else:
+                messagebox.showinfo("Sin errores", "No se encontraron valores incorrectos en la columna 'TipoDocumento' en la hoja 'Fichas'.")
+            '''
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+        
+    def Validar_Longitud_NPN(self):
+        archivo_excel = self.archivo_entry.get()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer la hoja 'FichasPrediales'
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Fichas')
+
+           
+            
+            resultados = []
+
+            # Validar longitud de 'NumCedulaCatastral'
+            for index, row in df_fichas.iterrows():
+                Npn = str(row['Npn']).strip()  # Convertir a cadena
+
+                # Validar longitud de 28 dígitos
+                if len(Npn) != 30:
+                    resultados.append({
+                        'NroFicha': row['NroFicha'],
+                        'Npn': Npn,
+                        'Observacion': 'Npn no tiene 30 dígitos',
+                        'Nombre Hoja': 'Fichas'
+                    })
+
+                # Validar DestinoEconomico si el cuarto dígito de NumCedulaCatastral es '2'
+                
+            '''
+            
+            # Guardar los resultados en un archivo Excel si hay errores
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'Errores_NumCedulaCatastral_y_DestinoEconomico_FichasPrediales.xlsx'
+                df_resultado.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Éxito", f"Errores encontrados: {len(resultados)} registros que cumplen con las condiciones.")
+            else:
+                messagebox.showinfo("Sin errores", "No se encontraron registros que cumplan con las condiciones en 'FichasPrediales'.")
+            '''
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []   
+    

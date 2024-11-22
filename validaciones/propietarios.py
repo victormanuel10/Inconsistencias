@@ -25,75 +25,79 @@ class Propietarios:
        
     def procesar_errores(self):
         construcciones = Construcciones(self.archivo_entry)
+        #self.agregar_resultados(construcciones.validar_secuencia_convencional())
+        #self.agregar_resultados(construcciones.validar_construcciones_No_convencionales())
+        #self.agregar_resultados(construcciones.validar_secuencia_convencional_calificaciones())
+        self.agregar_resultados(construcciones.validar_no_convencional_secuencia())
+        '''
+        
+       
+        self.agregar_resultados(construcciones.validar_construcciones_puntos())
         self.agregar_resultados(construcciones.validar_porcentaje_construido())
         self.agregar_resultados(construcciones.validar_edad_construccion())
         self.agregar_resultados(construcciones.validar_construcciones_No_convencionales())
         self.agregar_resultados(construcciones.areaconstruida_mayora1000())
         self.agregar_resultados(construcciones.tipo_construccion_noconvencionales())         
-        self.agregar_resultados(construcciones.validar_secuencia_construcciones_vs_generales())
-        
-        
+        self.agregar_resultados(construcciones.validar_secuencia_construcciones_vs_calificaciones())
+        self.agregar_resultados(construcciones.validar_secuencia_calificaciones_vs_construcciones())
+        '''
         ficha = Ficha(self.archivo_entry)
-        self.agregar_resultados(ficha.validar_destino_economico())
-        self.agregar_resultados(ficha.ultimo_digito())
-        self.agregar_resultados(ficha.prediosindireccion())
-        self.agregar_resultados(ficha.validar_npn14a17())
-        self.agregar_resultados(ficha.validar_npn())
-        self.agregar_resultados(ficha.validar_nrofichas_faltantes())
-        self.agregar_resultados(ficha.validar_nrofichas_propietarios())
-        self.agregar_resultados(ficha.validar_matriculas_duplicadas())
-        self.agregar_resultados(ficha.porcentaje_litigiocero())
-        self.agregar_resultados(ficha.areaterrenocero())
-        self.agregar_resultados(ficha.areaconstruccioncero())
-        self.agregar_resultados(ficha.destino_economico_mayorcero())
-        self.agregar_resultados(ficha.matricula_mejora())
-        self.agregar_resultados(ficha.terreno_cero())
-        self.agregar_resultados(ficha.terreno_null())
-        self.agregar_resultados(ficha.informal_matricula())
-        self.agregar_resultados(ficha.circulo_mejora())
-        self.agregar_resultados(ficha.tomo_mejora())
-        self.agregar_resultados(ficha.modo_adquisicion_informal())
-        self.agregar_resultados(ficha.ficha_repetida())
+        #self.agregar_resultados(ficha.Validar_Longitud_NPN())
+        #self.agregar_resultados(ficha.validar_tipo_documento())
+        #self.agregar_resultados(ficha.validar_direccion_referencia_y_nombre())
+        #self.agregar_resultados(ficha.validar_destino_economico_y_longitud_cedula())
+        #self.agregar_resultados(ficha.ultimo_digito())
+        #self.agregar_resultados(ficha.prediosindireccion())
+        #self.agregar_resultados(ficha.validar_npn14a17())
+        #self.agregar_resultados(ficha.validar_npn())
+        #self.agregar_resultados(ficha.validar_nrofichas_faltantes())
+        #self.agregar_resultados(ficha.validar_nrofichas_propietarios())
+        #self.agregar_resultados(ficha.validar_matriculas_duplicadas())
+        #self.agregar_resultados(ficha.porcentaje_litigiocero())
+        #self.agregar_resultados(ficha.areaterrenocero())
+        #self.agregar_resultados(ficha.areaconstruccioncero())
+        ##self.agregar_resultados(ficha.destino_economico_mayorcero())
+        #self.agregar_resultados(ficha.matricula_mejora())
+        #self.agregar_resultados(ficha.terreno_cero())
+        ##self.agregar_resultados(ficha.terreno_null())
+        #self.agregar_resultados(ficha.informal_matricula())
+        ##self.agregar_resultados(ficha.circulo_mejora())
+        ##self.agregar_resultados(ficha.tomo_mejora())
+        #self.agregar_resultados(ficha.modo_adquisicion_informal())
+        #self.agregar_resultados(ficha.ficha_repetida())
         
         cartografia=Cartografia(self.archivo_entry)
-        self.agregar_resultados(cartografia.validar_fichas_faltantes())
-        self.agregar_resultados(cartografia.validar_cartografia_faltantes())
-        
-        
-        
+        #self.agregar_resultados(cartografia.validar_fichas_faltantes())
+        #self.agregar_resultados(cartografia.validar_cartografia_faltantes())
+        #self.agregar_resultados(cartografia.validar_cartografia_columnas())
         colindantes=Colindantes(self.archivo_entry)
-        self.agregar_resultados(colindantes.validar_orientaciones_colindantes())
-        
+        #self.agregar_resultados(colindantes.validar_orientaciones_colindantes())
         zonashomogeneas= ZonasHomogeneas(self.archivo_entry)
-        self.agregar_resultados(zonashomogeneas.validar_tipo_zonas_homogeneas())
+        #self.agregar_resultados(zonashomogeneas.validar_tipo_zonas_homogeneas())
         
         
-        
-        
-        self.validar_documento_inicia_con_cero()
-        self.validar_documento_sexo_masculino()
-        self.validar_tipo_documento_sexo()
-        self.validar_documento_sexo_femenino()
-        self.numerofallocero()
-        self.entidadvacio()
-        self.primer_apellido_blanco()
-        self.primer_nombre_blanco()
-        self.calidad_propietario_mun()
-        self.nit_diferente_mun()
-        self.derecho_diferente_cien()
-        self.documento_blanco_cod_asig()
-        self.fecha_escritura_inferior()
-        self.fecha_escritura_mayor()
-        
+        #self.validar_tipo_documento()
+        ##self.validar_documento_inicia_con_cero()
+        ##self.validar_documento_sexo_masculino()
+        ##self.validar_tipo_documento_sexo()
+        ##self.validar_documento_sexo_femenino()
+        #self.numerofallocero()
+        #self.entidadvacio()
+        #self.primer_apellido_blanco()
+        #self.primer_nombre_blanco()
+        #self.calidad_propietario_mun()
+        #self.nit_diferente_mun()
+        #self.derecho_diferente_cien()
+        ##self.documento_blanco_cod_asig()
+        #self.fecha_escritura_inferior()
+        #self.fecha_escritura_mayor()
         
         calificonstrucciones= CalificaionesConstrucciones(self.archivo_entry)
-        self.agregar_resultados(calificonstrucciones.validar_sinCocina())
-        self.agregar_resultados(calificonstrucciones.conservacion_cubierta_bueno())
-        self.agregar_resultados(calificonstrucciones.validar_banios()) 
-        self.agregar_resultados(calificonstrucciones.Validar_armazon())
-        self.agregar_resultados(calificonstrucciones.Validar_fachada())
-        
-        
+        #self.agregar_resultados(calificonstrucciones.validar_sinCocina())
+        #self.agregar_resultados(calificonstrucciones.conservacion_cubierta_bueno())
+        #self.agregar_resultados(calificonstrucciones.validar_banios()) 
+        #self.agregar_resultados(calificonstrucciones.Validar_armazon())
+        #self.agregar_resultados(calificonstrucciones.Validar_fachada())
         
         errores_por_hoja = {}
         
@@ -131,7 +135,62 @@ class Propietarios:
             print(f"Error: {str(e)}")
             messagebox.showerror("Error", f"Ocurrió un error al leer el archivo: {str(e)}")
             return None
+    '''
     
+    def validar_tipo_documento(self):
+        """
+        Verifica que en la hoja 'Fichas', los valores en la columna 'TipoDocumento' no sean
+        '10|CEDULA CIUDADANIA HOMBRE' o '10|CEDULA CIUDADANIA MUJER'.
+        Si se encuentran estos valores, genera un error indicando que deben ser '10|CEDULA DE CIUDADANIA'.
+        """
+        archivo_excel = self.archivo_entry.get()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer la hoja 'Fichas'
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Propietarios')
+
+            # Valores no permitidos en 'TipoDocumento'
+            valores_invalidos = [
+                "10|CEDULA CIUDADANIA HOMBRE",
+                "10|CEDULA CIUDADANIA MUJER"
+            ]
+            
+            # Lista para almacenar los errores encontrados
+            resultados = []
+
+            # Validar cada fila en la columna 'TipoDocumento'
+            for index, row in df_fichas.iterrows():
+                tipo_documento = row.get('TipoDocumento', '')
+
+                # Si 'TipoDocumento' contiene un valor no permitido
+                if tipo_documento in valores_invalidos:
+                    resultado = {
+                    'NroFicha': row['NroFicha'],
+                    'TipoDocumento': tipo_documento,
+                    'Observacion': "Debe ser '10|CEDULA DE CIUDADANIA'",
+                    'Nombre Hoja': 'Propietarios'
+                    }
+                    resultados.append(resultado)
+            # Guardar los resultados en un archivo Excel si hay errores
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'Errores_TipoDocumento_Fichas.xlsx'
+                df_resultado.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(resultados)} registros con valores incorrectos en 'TipoDocumento'.")
+            else:
+                messagebox.showinfo("Sin errores", "No se encontraron valores incorrectos en la columna 'TipoDocumento' en la hoja 'Fichas'.")
+                self.agregar_resultados(resultados)
+            
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+    '''
     def validar_documento_inicia_con_cero(self):
         """
         Verifica que en la hoja 'Propietarios' no haya valores en la columna 'Documento' que inicien con '0'.
@@ -160,7 +219,8 @@ class Propietarios:
                     'Nombre Hoja': 'Propietarios'
                 }
                 resultados.append(resultado)
-
+            '''
+            
             # Guardar los resultados en un archivo Excel si hay errores
             if resultados:
                 df_resultado = pd.DataFrame(resultados)
@@ -170,7 +230,7 @@ class Propietarios:
                 messagebox.showinfo("Éxito", f"Errores encontrados: {len(resultados)} registros con Documento que inicia con '0'.")
             else:
                 messagebox.showinfo("Sin errores", "No se encontraron Documentos que inicien con '0' en la hoja 'Propietarios'.")
-
+            '''
             self.agregar_resultados(resultados)
 
         except Exception as e:
@@ -937,10 +997,12 @@ class Propietarios:
 
             # Iterar sobre las filas del DataFrame
             for index, row in df.iterrows():
+                
+               Entidad=row['Entidad'] 
                EntidadDepartamento = row['EntidadDepartamento']
                EntidadMunicipio= row['EntidadMunicipio']
                         
-               if pd.isna(EntidadDepartamento) or EntidadDepartamento=='' or EntidadMunicipio=='' or pd.isna(EntidadMunicipio):
+               if pd.isna(EntidadDepartamento) or EntidadDepartamento=='' or EntidadMunicipio=='' or pd.isna(EntidadMunicipio) or Entidad=='':
                     resultado = {
                         'NroFicha': row['NroFicha'],
                         'EntidadDepartamento':row['EntidadDepartamento'],

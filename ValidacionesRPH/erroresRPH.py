@@ -31,7 +31,7 @@ class FichasRPHProcesador:
         # Cargar la hoja Fichas Prediales
         try:
             archivo_excel = self.archivo_entry if isinstance(self.archivo_entry, str) else self.archivo_entry.get()
-            df_fichas = pd.read_excel(archivo_excel, sheet_name='FichasPrediales')
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Fichas')
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar el archivo: {str(e)}")
             return
@@ -48,11 +48,16 @@ class FichasRPHProcesador:
         fichas_rph = FichasRPH(self.archivo_entry)
         
         # Validación de coeficiente de copropiedad
+        '''
+        
         self.agregar_resultados(fichas_rph.validar_coeficiente_copropiedad_por_npn())
         self.agregar_resultados(fichas_rph.validar_duplicados_npn())
         self.agregar_resultados(fichas_rph.edificio_en_cero_rph())
         self.agregar_resultados(fichas_rph.unidad_predial_en_cero())
         self.agregar_resultados(fichas_rph.validar_destino_economico())
+        '''
+        self.agregar_resultados(fichas_rph.validar_npn_y_caracteristica())
+        self.agregar_resultados(fichas_rph.validar_npn_num_cedula())
         self.generar_archivo_errores()
 
     def generar_archivo_errores(self):

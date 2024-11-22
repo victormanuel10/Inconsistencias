@@ -111,3 +111,60 @@ class Cartografia:
             print(f"Error: {str(e)}")
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
             return []
+        
+        
+    
+    def validar_cartografia_columnas(self):
+        archivo_excel = self.archivo_entry.get()
+
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo.")
+            return []
+
+        try:
+            # Leer la hoja 'CartografiaInformacionGrafica'
+            df_cartografia = pd.read_excel(archivo_excel, sheet_name='CartografiaInformacionGrafica')
+            
+            # Columnas a validar
+            columnas_requeridas = [
+                'IndicePlancha', 'Ventana', 'Escala', 'Vigencia', 'IndiceVuelo', 
+                'Faja', 'Foto', 'VigenciaAero', 'ampliacion'
+            ]
+            
+            # Lista para almacenar errores
+            resultados = []
+
+            # Validar columnas no nulas
+            for columna in columnas_requeridas:
+                if df_cartografia[columna].isnull().any():
+                    resultados.append({
+                        'Columna': columna,
+                        'Observacion': f"La columna '{columna}' contiene valores nulos.",
+                        'Nombre Hoja': 'CartografiaInformacionGrafica'
+                    })
+
+            # Validar que 'Vigencia' no sea menor a 1995
+            if (df_cartografia['Vigencia'].astype(float) < 1995).any():
+                resultados.append({
+                    'Columna': 'Vigencia',
+                    'Observacion': "La Vigencia es menor a 1995.",
+                    'Nombre Hoja': 'CartografiaInformacionGrafica'
+                })
+
+            # Solo crear y guardar el DataFrame si hay errores
+            if resultados:
+                df_resultados = pd.DataFrame(resultados)
+                output_file = 'Errores_Cartografia.xlsx'
+                sheet_name = 'Errores Cartografia'
+                df_resultados.to_excel(output_file, sheet_name=sheet_name, index=False)
+                print(f"Archivo guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(resultados)} errores en la hoja 'CartografiaInformacionGrafica'.")
+            else:
+                messagebox.showinfo("Validación completada", "No se encontraron errores en la hoja 'CartografiaInformacionGrafica'.")
+
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []

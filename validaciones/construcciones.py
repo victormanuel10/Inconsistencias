@@ -39,7 +39,7 @@ class Construcciones:
                         'ConvencionalNoConvencional': row['ConvencionalNoConvencional'],
                         'calificacionNoConvencional': row['calificacionNoConvencional'],
                         'Observacion': 'Calificación no convencional es nula para Noconvencional',
-                        'Nombre Hoja': nombre_hoja
+                        'Nombre Hoja': 'Construcciones'
                     }
                     resultados.append(resultado)
                     
@@ -89,7 +89,7 @@ class Construcciones:
             resultados = []
 
             for index, row in df.iterrows():
-                TipoConstruccion = row['TipoConstruccion']
+                TipoConstruccion = row['Tipo Construccion']
                 NoConvensional = row['ConvencionalNoConvencional']
 
                 if NoConvensional == 'No Convencional' and TipoConstruccion != '' :
@@ -184,7 +184,7 @@ class Construcciones:
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
             
             
-    def validar_secuencia_construcciones_vs_generales(self):
+    def validar_secuencia_construcciones_vs_calificaciones(self):
         archivo_excel = self.archivo_entry.get()
 
         if not archivo_excel:
@@ -192,43 +192,43 @@ class Construcciones:
             return
         
         try:
-            # Leer las hojas Construcciones y ConstruccionesGenerales
+            # Leer las hojas Construcciones y CalificacionesConstrucciones
             df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
-            df_generales = pd.read_excel(archivo_excel, sheet_name='ConstruccionesGenerales')
+            df_calificaciones = pd.read_excel(archivo_excel, sheet_name='CalificacionesConstrucciones')
 
             print(f"Leyendo archivo: {archivo_excel}")
             print(f"Dimensiones de Construcciones: {df_construcciones.shape}")
-            print(f"Dimensiones de ConstruccionesGenerales: {df_generales.shape}")
+            print(f"Dimensiones de CalificacionesConstrucciones: {df_calificaciones.shape}")
 
-            # Extraer las columnas de Secuencia
-            secuencia_construcciones = df_construcciones['secuencia'].dropna().unique()
-            secuencia_generales = df_generales['Secuencia'].dropna().unique()
+            # Extraer las secuencias de cada hoja
+            secuencia_construcciones = set(df_construcciones['secuencia'].dropna())
+            secuencia_calificaciones = set(df_calificaciones['Secuencia'].dropna())
 
-            # Encontrar secuencias en Construcciones que no están en ConstruccionesGenerales
-            secuencias_faltantes = set(secuencia_construcciones) - set(secuencia_generales)
+            # Encontrar secuencias en Construcciones que no están en CalificacionesConstrucciones
+            secuencias_faltantes = secuencia_construcciones - secuencia_calificaciones
 
             resultados = []
             for secuencia in secuencias_faltantes:
                 resultado = {
                     'secuencia': secuencia,
-                    'Observacion': 'Secuencia esta en Construcciones pero no está en ConstruccionesGenerales',
+                    'Observacion': 'Secuencia está en Construcciones pero no en CalificacionesConstrucciones',
                     'Nombre Hoja': 'Construcciones'
                 }
                 resultados.append(resultado)
                 print(f"Secuencia faltante: {resultado}")
-
+            '''
             # Si se encuentran errores, guardar los resultados en un archivo Excel
             if resultados:
                 df_resultado = pd.DataFrame(resultados)
-                '''
                 output_file = 'ERRORES_SECUENCIAS_CONSTRUCCIONES.xlsx'
                 df_resultado.to_excel(output_file, sheet_name='ErroresSecuencias', index=False)
                 print(f"Archivo guardado: {output_file}")
                 messagebox.showinfo("Éxito", f"Proceso completado. Se ha creado el archivo '{output_file}' con {len(resultados)} errores.")
-                '''
             else:
-                messagebox.showinfo("Sin errores", "Todas las secuencias en Construcciones están presentes en ConstruccionesGenerales.")
+                messagebox.showinfo("Sin errores", "Todas las secuencias en Construcciones están presentes en CalificacionesConstrucciones.")
+            '''
             return resultados
+
         except Exception as e:
             print(f"Error: {str(e)}")
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
@@ -306,7 +306,8 @@ class Construcciones:
                     'Nombre Hoja': 'Construcciones'
                 }
                 resultados.append(resultado)
-
+            '''
+            
             # Guardar los resultados en un archivo Excel si hay errores
             if resultados:
                 df_resultado = pd.DataFrame(resultados)
@@ -316,7 +317,7 @@ class Construcciones:
                 messagebox.showinfo("Éxito", f"Errores encontrados: {len(resultados)} registros con PorcentajeConstruido igual o menor a 0.")
             else:
                 messagebox.showinfo("Sin errores", "No se encontraron valores de PorcentajeConstruido igual o menor a 0 en la hoja 'Construcciones'.")
-
+            '''
             return resultados
 
         except Exception as e:
@@ -324,11 +325,117 @@ class Construcciones:
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
             return []
         
-    def validar_puntos_construcciones(self):
+    
+    def validar_construcciones_puntos(self):
+        archivo_excel = self.archivo_entry.get()
+
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo.")
+            return []
+
+        try:
+            # Leer la hoja 'Construcciones'
+            df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
+            
+            # Lista para almacenar errores
+            errores = []
+
+            # Validar cada fila en la columna 'Puntos'
+            for index, row in df_construcciones.iterrows():
+                # Validar si 'Puntos' es nulo
+                if pd.isnull(row['Puntos']):
+                    errores.append({
+                        'Puntos':row ['Puntos'],
+                        'Observacion': "La columna 'Puntos' contiene valores nulos.",
+                        'NroFicha': row['NroFicha'],
+                        'Nombre Hoja': 'Construcciones'
+                    })
+                
+                # Validar si 'Puntos' es menor a 1
+                elif row['Puntos'] < 1:
+                    errores.append({
+                        'Puntos':row ['Puntos'],
+                        'Observacion': "La columna 'Puntos' contiene valores menores a 1.",
+                        'NroFicha': row['NroFicha'],
+                        'Nombre Hoja': 'Construcciones'
+                    })
+
+            # Solo crear y guardar el DataFrame si hay errores
+            '''
+            
+            if errores:
+                df_errores = pd.DataFrame(errores)
+                output_file = 'Errores_Construcciones_Puntos.xlsx'
+                sheet_name = 'Errores Construcciones'
+                df_errores.to_excel(output_file, sheet_name=sheet_name, index=False)
+                print(f"Archivo guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(errores)} errores en la columna 'Puntos' de la hoja 'Construcciones'.")
+            else:
+                messagebox.showinfo("Validación completada", "No se encontraron errores en la columna 'Puntos' de la hoja 'Construcciones'.")
+            '''
+            return errores
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+        
+    def validar_secuencia_calificaciones_vs_construcciones(self):
+        archivo_excel = self.archivo_entry.get()
+
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo.")
+            return
+        
+        try:
+            # Leer las hojas Construcciones y CalificacionesConstrucciones
+            df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
+            df_calificaciones = pd.read_excel(archivo_excel, sheet_name='CalificacionesConstrucciones')
+
+            print(f"Leyendo archivo: {archivo_excel}")
+            print(f"Dimensiones de Construcciones: {df_construcciones.shape}")
+            print(f"Dimensiones de CalificacionesConstrucciones: {df_calificaciones.shape}")
+
+            # Extraer las secuencias de cada hoja
+            secuencia_construcciones = set(df_construcciones['secuencia'].dropna())
+            secuencia_calificaciones = set(df_calificaciones['Secuencia'].dropna())
+
+            # Encontrar secuencias en CalificacionesConstrucciones que no están en Construcciones
+            secuencias_faltantes = secuencia_calificaciones - secuencia_construcciones
+
+            resultados = []
+            for secuencia in secuencias_faltantes:
+                resultado = {
+                    'secuencia': secuencia,
+                    'Observacion': 'Secuencia está en CalificacionesConstrucciones pero no en Construcciones',
+                    'Nombre Hoja': 'CalificacionesConstrucciones'
+                }
+                resultados.append(resultado)
+                print(f"Secuencia faltante: {resultado}")
+            '''
+            
+            # Si se encuentran errores, guardar los resultados en un archivo Excel
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'ERRORES_SECUENCIAS_CALIFICACIONES.xlsx'
+                df_resultado.to_excel(output_file, sheet_name='ErroresSecuencias', index=False)
+                print(f"Archivo guardado: {output_file}")
+                messagebox.showinfo("Éxito", f"Proceso completado. Se ha creado el archivo '{output_file}' con {len(resultados)} errores.")
+            else:
+                messagebox.showinfo("Sin errores", "Todas las secuencias en CalificacionesConstrucciones están presentes en Construcciones.")
+            '''
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            
+    
+    def validar_secuencia_convencional(self):
         """
-        Verifica que en la hoja 'Construcciones' no haya valores en la columna 'Puntos' 
-        que sean menores a 1 o estén vacíos (null). Si los hay, genera un error por cada 
-        registro que cumpla alguna de estas condiciones.
+        Valida que si en la columna 'ConvencionalNoConvencional' de la hoja 'Construcciones' el valor es 'Convencional',
+        al menos una secuencia de la hoja 'Construcciones' exista en el campo 'Secuencia' de la hoja 'ConstruccionesGenerales'.
         """
         archivo_excel = self.archivo_entry.get()
         if not archivo_excel:
@@ -336,33 +443,198 @@ class Construcciones:
             return []
 
         try:
-            # Leer la hoja 'Construcciones'
+            # Leer las hojas 'Construcciones' y 'ConstruccionesGenerales'
             df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
-            
-            # Filtrar registros donde 'Puntos' es menor a 1 o es null
-            errores = df_construcciones[(df_construcciones['Puntos'] < 1) | (df_construcciones['Puntos'].isnull())]
-            
-            resultados = []
+            df_generales = pd.read_excel(archivo_excel, sheet_name='ConstruccionesGenerales')
 
-            # Generar lista de errores
-            for _, row in errores.iterrows():
-                resultado = {
-                    'NroFicha': row['NroFicha'],
-                    'Puntos': row['Puntos'],
-                    'Observacion': 'El valor de Puntos es menor a 1 o está vacío',
-                    'Nombre Hoja': 'Construcciones'
-                }
-                resultados.append(resultado)
+            # Filtrar las secuencias de 'Construcciones' donde 'ConvencionalNoConvencional' es 'Convencional'
+            convencionales = df_construcciones[df_construcciones['ConvencionalNoConvencional'] == 'Convencional']
+            
+            # Obtener las secuencias únicas en 'ConstruccionesGenerales'
+            secuencias_generales = set(df_generales['Secuencia'].dropna().unique())
+
+            # Lista para almacenar los errores
+            errores = []
+
+            # Validar cada secuencia en 'convencionales' para asegurarse de que exista en 'ConstruccionesGenerales'
+            for index, row in convencionales.iterrows():
+                secuencia = row['secuencia']
+                if secuencia not in secuencias_generales:
+                    errores.append({
+                        'NroFicha': row['NroFicha'],
+                        'secuencia': secuencia,
+                        'Observacion': "Secuencia 'Convencional' no encontrada en 'ConstruccionesGenerales'",
+                        'Nombre Hoja': 'Construcciones'
+                    })
+            '''
+            
+            # Guardar los resultados en un archivo Excel si hay errores
+            if errores:
+                df_errores = pd.DataFrame(errores)
+                output_file = 'Errores_Convencional_Secuencia.xlsx'
+                df_errores.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(errores)} secuencias sin correspondencia en 'ConstruccionesGenerales'.")
+            else:
+                messagebox.showinfo("Sin errores", "Todas las secuencias 'Convencional' están presentes en 'ConstruccionesGenerales'.")
+            '''
+            return errores
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+
+    def validar_secuencia_convencional_calificaciones(self):
+        """
+        Valida que si en la columna 'ConvencionalNoConvencional' de la hoja 'Construcciones' el valor es 'Convencional',
+        al menos una secuencia de la hoja 'Construcciones' exista en el campo 'Secuencia' de la hoja 'ConstruccionesGenerales'.
+        """
+        archivo_excel = self.archivo_entry.get()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer las hojas 'Construcciones' y 'ConstruccionesGenerales'
+            df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
+            df_generales = pd.read_excel(archivo_excel, sheet_name='CalificacionesConstrucciones')
+
+            # Filtrar las secuencias de 'Construcciones' donde 'ConvencionalNoConvencional' es 'Convencional'
+            convencionales = df_construcciones[df_construcciones['ConvencionalNoConvencional'] == 'Convencional']
+            
+            # Obtener las secuencias únicas en 'ConstruccionesGenerales'
+            secuencias_generales = set(df_generales['Secuencia'].dropna().unique())
+
+            # Lista para almacenar los errores
+            errores = []
+
+            # Validar cada secuencia en 'convencionales' para asegurarse de que exista en 'ConstruccionesGenerales'
+            for index, row in convencionales.iterrows():
+                secuencia = row['secuencia']
+                if secuencia not in secuencias_generales:
+                    errores.append({
+                        'NroFicha': row['NroFicha'],
+                        'secuencia': secuencia,
+                        'Observacion': "Secuencia 'Convencional' no encontrada en 'CalificacionesConstrucciones'",
+                        'Nombre Hoja': 'Construcciones'
+                    })
+            '''
+            
+            # Guardar los resultados en un archivo Excel si hay errores
+            if errores:
+                df_errores = pd.DataFrame(errores)
+                output_file = 'Errores_Convencional_Secuencia.xlsx'
+                df_errores.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(errores)} secuencias sin correspondencia en 'ConstruccionesGenerales'.")
+            else:
+                messagebox.showinfo("Sin errores", "Todas las secuencias 'Convencional' están presentes en 'ConstruccionesGenerales'.")
+            '''
+            return errores
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+        
+    def validar_no_convencional_secuencia(self):
+        """
+        Valida que si en la columna 'ConvencionalNoConvencional' de la hoja 'Construcciones' el valor es 'No Convencional',
+        la secuencia de esa fila no esté presente en la columna 'Secuencia' de la hoja 'CalificacionesConstrucciones'.
+        """
+        archivo_excel = self.archivo_entry.get()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer las hojas 'Construcciones' y 'CalificacionesConstrucciones'
+            df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
+            df_calificaciones = pd.read_excel(archivo_excel, sheet_name='CalificacionesConstrucciones')
+
+            # Filtrar las secuencias de 'Construcciones' donde 'ConvencionalNoConvencional' es 'No Convencional'
+            no_convencionales = df_construcciones[df_construcciones['ConvencionalNoConvencional'] == 'No Convencional']
+
+            # Obtener las secuencias únicas en 'CalificacionesConstrucciones'
+            secuencias_calificaciones = set(df_calificaciones['Secuencia'].dropna().unique())
+
+            # Lista para almacenar los errores
+            errores = []
+
+            # Validar cada secuencia en 'no_convencionales' para asegurarse de que no exista en 'CalificacionesConstrucciones'
+            for index, row in no_convencionales.iterrows():
+                secuencia = row['secuencia']
+                if secuencia in secuencias_calificaciones:
+                    errores.append({
+                        'NroFicha': row['NroFicha'],
+                        'secuencia': secuencia,
+                        'Observacion': "Secuencia 'No Convencional' encontrada en 'CalificacionesConstrucciones'",
+                        'Nombre Hoja': 'Construcciones'
+                    })
 
             # Guardar los resultados en un archivo Excel si hay errores
+            if errores:
+                df_errores = pd.DataFrame(errores)
+                output_file = 'Errores_No_Convencional_Secuencia.xlsx'
+                df_errores.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(errores)} secuencias 'No Convencional' que no cumplen la condición.")
+            else:
+                messagebox.showinfo("Sin errores", "Todas las secuencias 'No Convencional' cumplen la condición en 'CalificacionesConstrucciones'.")
+
+            return errores
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+        
+    def validar_secuencias_repetidas(self):
+        """
+        Verifica si existen secuencias repetidas en las hojas 'Construcciones' y 'CalificacionesConstrucciones'.
+        Genera un error si una secuencia se encuentra en ambas hojas.
+        """
+        archivo_excel = self.archivo_entry.get()
+        
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer las hojas 'Construcciones' y 'CalificacionesConstrucciones'
+            df_construcciones = pd.read_excel(archivo_excel, sheet_name='Construcciones')
+            df_calificaciones = pd.read_excel(archivo_excel, sheet_name='CalificacionesConstrucciones')
+
+            # Extraer las secuencias únicas de cada hoja
+            secuencias_construcciones = df_construcciones['Secuencia'].dropna().unique()
+            secuencias_calificaciones = df_calificaciones['Secuencia'].dropna().unique()
+
+            # Encontrar secuencias repetidas en ambas hojas
+            secuencias_repetidas = set(secuencias_construcciones) & set(secuencias_calificaciones)
+
+            resultados = []
+            for secuencia in secuencias_repetidas:
+                resultado = {
+                    'Secuencia': secuencia,
+                    'Observacion': 'Secuencia duplicada en ambas hojas',
+                    'Nombre Hoja': 'Construcciones y CalificacionesConstrucciones'
+                }
+                resultados.append(resultado)
+                print(f"Secuencia duplicada encontrada: {resultado}")
+
+            # Si se encuentran duplicados, guardarlos en un archivo Excel
             if resultados:
                 df_resultado = pd.DataFrame(resultados)
-                output_file = 'Errores_Puntos_Construcciones.xlsx'
+                output_file = 'Errores_Secuencias_Duplicadas.xlsx'
                 df_resultado.to_excel(output_file, index=False)
                 print(f"Archivo de errores guardado: {output_file}")
-                messagebox.showinfo("Éxito", f"Errores encontrados: {len(resultados)} registros con Puntos menor a 1 o vacío.")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(resultados)} secuencias duplicadas en ambas hojas.")
             else:
-                messagebox.showinfo("Sin errores", "No se encontraron valores de Puntos menores a 1 o vacíos en la hoja 'Construcciones'.")
+                messagebox.showinfo("Validación completada", "No se encontraron secuencias duplicadas en ambas hojas.")
 
             return resultados
 

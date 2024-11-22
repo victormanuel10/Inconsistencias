@@ -282,3 +282,137 @@ class FichasRPH:
             print(f"Error: {str(e)}")
             messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
             return []
+        
+    
+    
+    def validar_npn_y_caracteristica(self):
+        """
+        Valida en la hoja 'Fichas' los registros donde:
+        - El 22.º dígito de 'Npn' es '9'.
+        - Los primeros 22 dígitos de 'Npn' están duplicados.
+        - La suma de los últimos cuatro dígitos (27.º a 30.º) es mayor a cero.
+        - 'CaracteristicaPredio' debe coincidir con la del registro con suma cero.
+        """
+        archivo_excel = self.obtener_archivo()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer la hoja 'Fichas'
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Fichas')
+            
+            resultados = []
+
+            # Filtrar los registros donde el 22.º dígito de 'Npn' es '9'
+            df_fichas = df_fichas[df_fichas['Npn'].astype(str).str[21] == '9']
+            
+            # Agrupar por los primeros 22 dígitos de 'Npn' para encontrar duplicados
+            df_fichas['Npn_22_digitos'] = df_fichas['Npn'].astype(str).str[:22]
+            grupos_npn = df_fichas.groupby('Npn_22_digitos')
+
+            for npn_22, grupo in grupos_npn:
+                # Convertir los últimos 4 dígitos a enteros y calcular la suma
+                grupo['Ultimos_4_digitos'] = grupo['Npn'].astype(str).str[-4:].astype(int)
+                grupo['Suma_ultimos_4'] = grupo['Ultimos_4_digitos'].apply(lambda x: sum(int(d) for d in str(x)))
+
+                # Identificar el registro con suma igual a cero, si existe
+                referencia = grupo[grupo['Suma_ultimos_4'] == 0]
+                if not referencia.empty:
+                    caracteristica_referencia = referencia.iloc[0]['CaracteristicaPredio']
+
+                    # Validar los otros registros en el grupo
+                    for _, row in grupo.iterrows():
+                        if row['Suma_ultimos_4'] > 0 and row['CaracteristicaPredio'] != caracteristica_referencia:
+                            resultado = {
+                                'NroFicha': row['NroFicha'],
+                                'Npn': row['Npn'],
+                                'CaracteristicaPredio': row['CaracteristicaPredio'],
+                                'CaracteristicaPredioEsperada': caracteristica_referencia,
+                                'Observacion': 'CaracteristicaPredio no coincide con la ficha resumen',
+                                'Nombre Hoja': 'Fichas'
+                            }
+                            resultados.append(resultado)
+            '''
+            
+            # Guardar los errores en un archivo Excel si existen
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'Errores_Npn_CaracteristicaPredio_Fichas.xlsx'
+                df_resultado.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(resultados)} errores en la validación de 'Npn' y 'CaracteristicaPredio'.")
+            else:
+                messagebox.showinfo("Validación completada", "No se encontraron errores en 'Npn' y 'CaracteristicaPredio'.")
+            '''
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
+        
+    def validar_npn_num_cedula(self):
+        """
+        Valida en la hoja 'Fichas' los registros donde:
+        - El 22.º dígito de 'Npn' es '9'.
+        - Los primeros 22 dígitos de 'Npn' están duplicados.
+        - La suma de los últimos cuatro dígitos (27.º a 30.º) es mayor a cero.
+        - 'NumCedulaCatastral' de los registros con suma mayor a cero no debe coincidir con el del registro con suma cero.
+        """
+        archivo_excel = self.obtener_archivo()
+        if not archivo_excel:
+            messagebox.showerror("Error", "Por favor, selecciona un archivo válido.")
+            return []
+
+        try:
+            # Leer la hoja 'Fichas'
+            df_fichas = pd.read_excel(archivo_excel, sheet_name='Fichas')
+            
+            resultados = []
+
+            # Filtrar los registros donde el 22.º dígito de 'Npn' es '9'
+            df_fichas = df_fichas[df_fichas['Npn'].astype(str).str[21] == '9']
+            
+            # Agrupar por los primeros 22 dígitos de 'Npn' para encontrar duplicados
+            df_fichas['Npn_22_digitos'] = df_fichas['Npn'].astype(str).str[:22]
+            grupos_npn = df_fichas.groupby('Npn_22_digitos')
+
+            for npn_22, grupo in grupos_npn:
+                # Convertir los últimos 4 dígitos a enteros y calcular la suma
+                grupo['Ultimos_4_digitos'] = grupo['Npn'].astype(str).str[-4:].astype(int)
+                grupo['Suma_ultimos_4'] = grupo['Ultimos_4_digitos'].apply(lambda x: sum(int(d) for d in str(x)))
+
+                # Identificar el registro con suma igual a cero, si existe
+                referencia = grupo[grupo['Suma_ultimos_4'] == 0]
+                if not referencia.empty:
+                    referencia_cedula = referencia.iloc[0]['NumCedulaCatastral']
+                    
+                    # Validar los otros registros en el grupo
+                    for _, row in grupo.iterrows():
+                        if row['Suma_ultimos_4'] > 0 and row['NumCedulaCatastral'] == referencia_cedula:
+                            resultado = {
+                                'NroFicha': row['NroFicha'],
+                                'Npn': row['Npn'],
+                                'NumCedulaCatastral': row['NumCedulaCatastral'],
+                                'Observacion': 'NumCedulaCatastral ya existe en ficha resumen',
+                                'Nombre Hoja': 'Fichas'
+                            }
+                            resultados.append(resultado)
+
+            # Guardar los errores en un archivo Excel si existen
+            if resultados:
+                df_resultado = pd.DataFrame(resultados)
+                output_file = 'Errores_NumCedulaCatastral_Npn_Fichas.xlsx'
+                df_resultado.to_excel(output_file, index=False)
+                print(f"Archivo de errores guardado: {output_file}")
+                messagebox.showinfo("Errores encontrados", f"Se encontraron {len(resultados)} errores en la validación de 'NumCedulaCatastral' y 'Npn'.")
+            else:
+                messagebox.showinfo("Validación completada", "No se encontraron errores en 'NumCedulaCatastral' y 'Npn'.")
+
+            return resultados
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", f"Ocurrió un error durante el proceso: {str(e)}")
+            return []
